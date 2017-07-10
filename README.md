@@ -19,5 +19,6 @@ The goal of your project is to predict the manner in which they did the exercise
 ##Analysis Output:
    1. [R Markdown file](https://github.com/GitanjaliMazumdar/Coursera-MachineLearning/blob/master/Coursera%20wk4%20Assignment.Rmd)
    2. [Resulting HTML file](https://github.com/GitanjaliMazumdar/Coursera-MachineLearning/blob/master/Coursera_wk4_Assignment.html)
+   
 
 
