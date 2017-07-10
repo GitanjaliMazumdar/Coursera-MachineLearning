@@ -561,7 +561,7 @@ confusionMatrix(pred_decTree,in_test$classe)$overall['Accuracy']</code></pre>
 <div id="random-forest" class="section level3">
 <h3><em>Random Forest</em></h3>
 <pre class="r"><code>set.seed(1000)
-# using random forest with caret was taking too long to run hence used randomForest func directly, tried diff   values for its parameters 
+# using random forest with caret was taking too long to run on my system hence used randomForest func directly, tried diff   values for its parameters 
 #choose the best random forest model based on new_test dataset accuracy and OOB error rate
 # ctrl &lt;- trainControl(method=&quot;repeatedcv&quot;, number = 10, repeats = 3)
 # grid_rf &lt;- expand.grid(.mtry=seq(6,12,1))
@@ -592,7 +592,7 @@ confusionMatrix(pred_rf2,in_test$classe)$overall['Accuracy']</code></pre>
 <div id="gradient-boosting" class="section level3">
 <h3><em>Gradient Boosting</em></h3>
 <pre class="r"><code>set.seed(1000)
-# using gbm with caret was taking too long to run hence used gbm func directly with diff values for its parameters
+# using gbm with caret was taking too long on my system to run hence used gbm func directly with diff values for its parameters
 # grid_gbm &lt;- expand.grid(
 #               .n.trees=400,
 #               .interaction.depth=6,
