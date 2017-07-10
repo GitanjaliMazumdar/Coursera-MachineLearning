@@ -61,6 +61,7 @@ mod_decTree <- train(classe ~., data = in_train, method = "rpart",
 pred_decTree <- predict(mod_decTree, newdata=in_test)
 confusionMatrix(pred_decTree,in_test$classe)$overall['Accuracy']
 ```
+Resulting accuracy is 0.8786746
 
 ### *Random Forest*
 ```{r modelRandomForest}
@@ -75,6 +76,7 @@ mod_rf2
 pred_rf2 <- predict(mod_rf2, newdata=in_test)
 confusionMatrix(pred_rf2,in_test$classe)$overall['Accuracy']
 ```
+Resulting accuracy is 0.9943925
 
 ### *Gradient Boosting*
 ```{r gbm}
@@ -100,8 +102,9 @@ final_pred_gbm <- apply(final_pred_gbm_prob,1,which.max)
 final_pred_gbm_final <- colnames(final_pred_gbm_prob)[final_pred_gbm]
 
 ```
+Resulting accuracy is 0.9928632
 
-*stacked model1 combination of rf & gbm checked the error rate for the in_test dataset was very poor.*
+*Also tested stacked model-  combination of rf & gbm. The error rate for the in_test dataset was very poor.*
 *Best Model was random forest based on outsample accuracy hence used the same for final prediction of the actual test dataset (new_test). All the predictions are correct*
 
 
