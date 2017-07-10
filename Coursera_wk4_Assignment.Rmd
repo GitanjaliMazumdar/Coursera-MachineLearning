@@ -1,0 +1,108 @@
+---
+title: "Coursera wk4 assignment"
+author: "Gitanjali"
+output: html_document
+---
+
+#Step 1: Library
+```{r library&seed}
+library(caret)
+library(randomForest)
+library(gbm)
+set.seed(1000)
+```
+
+#Step 2: Read in data
+```{r dataRead}
+train <- read.csv("pml-training.csv", header=TRUE)
+test <- read.csv("pml-testing.csv", header=TRUE)
+
+```
+
+#Step 3:check for variables with missing values in train & test data sets
+Variables with missing values very high also they are missing in test dataset.Hence will drop them
+instead of performing any missing values treatment.Remaining non missing variables exists in both new_train & new_test datasets - only the last variable differs i.e. 'classe' in new_train and 'problem id' in new_test.
+```{r missingVars}
+missing_count_train <- sapply(train, function(x)(sum(is.na(x) | x=="")));missing_count_train;
+missing_list_train <- missing_count_train[missing_count_train>0];missing_list_train
+new_train <- train[,!names(train) %in% names(missing_list_train) ];dim(new_train)
+
+missing_count_test <- sapply(test, function(x)(sum(is.na(x) | x=="")));missing_count_test;
+missing_list_test <- missing_count_test[missing_count_test>0];missing_list_test
+new_test<- test[,!names(test) %in% names(missing_list_test) ];dim(new_test)
+
+!names(new_train) %in% names(new_test)
+!names(new_test) %in% names(new_train)
+#dropping vars that are not reqd for prediction in new_train
+new_train <- new_train[,!names(new_train) %in% c("X","user_name","raw_timestamp_part_1","raw_timestamp_part_2","cvtd_timestamp","new_window","num_window")]
+
+```
+
+
+#Step 4: Split train data into in sample train & test data
+```{r splitTrain&Test}
+set.seed(1000)
+splitting <- createDataPartition(y=new_train$classe, p=0.7, list=FALSE)
+in_train <- new_train[splitting,]
+in_test <- new_train[-splitting,]
+dim(in_train); dim(in_test)
+```
+
+#Step 5: Model Building
+### *Decision Tree*
+```{r modelDecisionTree}
+
+set.seed(1000)
+ctrl= trainControl(method="repeatedcv", number= 10, repeats = 3)
+grid_decTree = expand.grid(cp = seq(0,0.1,0.01))
+mod_decTree <- train(classe ~., data = in_train, method = "rpart",
+                     trControl=ctrl, tuneGrid = grid_decTree, metric="Accuracy",
+                     control=rpart.control(minsplit = 100))
+pred_decTree <- predict(mod_decTree, newdata=in_test)
+confusionMatrix(pred_decTree,in_test$classe)$overall['Accuracy']
+```
+
+### *Random Forest*
+```{r modelRandomForest}
+set.seed(1000)
+# using random forest with caret was taking too long to run on my system hence used randomForest func directly, tried diff   values for its parameters, the default values produced the best model.The best random forest model was chosen on the basis of in_test dataset accuracy and OOB error rate
+# ctrl <- trainControl(method="repeatedcv", number = 10, repeats = 3)
+# grid_rf <- expand.grid(.mtry=seq(6,12,1))
+# mod_rf1 <- train(classe ~., data = in_train, method = "rf",
+#                 trControl=ctrl,metric="Accuracy", ntree=400, nodesize=50, tuneGrid=grid_rf)
+mod_rf2 <- randomForest(classe ~., data = in_train, ntree=500, mtry=7, nodesize=1)
+mod_rf2
+pred_rf2 <- predict(mod_rf2, newdata=in_test)
+confusionMatrix(pred_rf2,in_test$classe)$overall['Accuracy']
+```
+
+### *Gradient Boosting*
+```{r gbm}
+set.seed(1000)
+# using gbm with caret was taking too long on my system to run hence used gbm func directly with diff values for its parameters
+# grid_gbm <- expand.grid(
+#               .n.trees=400,
+#               .interaction.depth=6,
+#               .shrinkage=seq(0.01,0.1,0.01),
+#               .n.minobsinnode=50
+#               )
+# mod_gbm <- train(classe ~., data = in_train, method = "gbm",
+#                  trControl=ctrl,metric="Accuracy",tuneGrid=grid_gbm, bag.fraction=0.5, verbose=FALSE)
+mod_gbm2 <-gbm(classe ~., data = in_train, distribution="multinomial", n.trees=500, interaction.depth=6, 
+               shrinkage=0.1, n.minobsinnode=10,bag.fraction=0.5)
+pred_gbm_prob <- predict(mod_gbm2,newdata=in_test,n.trees=400, type="response")
+pred_gbm_prob[1:10,,]
+pred_gbm2 <- apply(pred_gbm_prob,1,which.max)
+pred_gbm2_final <- colnames(pred_gbm_prob)[pred_gbm2]
+confusionMatrix(pred_gbm2_final,in_test$classe)$overall['Accuracy']
+final_pred_gbm_prob <- predict(mod_gbm2,newdata=new_test,n.trees=500, type="response")
+final_pred_gbm <- apply(final_pred_gbm_prob,1,which.max)
+final_pred_gbm_final <- colnames(final_pred_gbm_prob)[final_pred_gbm]
+
+```
+
+*stacked model1 combination of rf & gbm checked the error rate for the in_test dataset was very poor.*
+*Best Model was random forest based on outsample accuracy hence used the same for final prediction of the actual test dataset (new_test). All the predictions are correct*
+
+
+
