@@ -65,7 +65,7 @@ confusionMatrix(pred_decTree,in_test$classe)$overall['Accuracy']
 ###*Random Forest*
 ```{r modelRandomForest}
 set.seed(1000)
-# using random forest with caret was taking too long to run hence used randomForest func directly, tried diff   values for its parameters 
+# using random forest with caret was taking too long to run on my system hence used randomForest func directly, tried diff   values for its parameters 
 #choose the best random forest model based on new_test dataset accuracy and OOB error rate
 # ctrl <- trainControl(method="repeatedcv", number = 10, repeats = 3)
 # grid_rf <- expand.grid(.mtry=seq(6,12,1))
@@ -80,7 +80,7 @@ confusionMatrix(pred_rf2,in_test$classe)$overall['Accuracy']
 ###*Gradient Boosting*
 ```{r gbm}
 set.seed(1000)
-# using gbm with caret was taking too long to run hence used gbm func directly with diff values for its parameters
+# using gbm with caret was taking too long to run on my system hence used gbm func directly with diff values for its parameters
 # grid_gbm <- expand.grid(
 #               .n.trees=400,
 #               .interaction.depth=6,
